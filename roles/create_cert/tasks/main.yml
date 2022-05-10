@@ -1,0 +1,2 @@
+- name: Create letsencrypt certificate
+  shell: cd /etc/letsencrypt/live/ && certbot --nginx -d {{ public_url }} -d www.{{ public_url }}

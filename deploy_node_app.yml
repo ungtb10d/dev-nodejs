@@ -1,0 +1,12 @@
+---
+- name: "Set up NodeJS project with Ansible"
+  hosts: webservers
+  user: ubuntu
+
+  vars_files:
+    - ./global_vars/node_app_vars.yml
+
+  roles: 
+    - docker
+    - docker-compose
+    - deploy_app

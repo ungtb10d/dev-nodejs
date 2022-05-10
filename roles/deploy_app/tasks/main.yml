@@ -1,0 +1,43 @@
+---
+- name: Copying the project archive to the server
+  copy:
+    src: ./downloads_project/{{ name_project }}.tar.gz
+    dest: "{{ remote_home_directory }}"
+    owner: ubuntu
+    group: ubuntu       
+    mode: 0664
+
+- name: create a directory
+  file:
+    path: "{{ remote_home_directory }}/{{ name_project }}"
+    state: directory
+    mode: 0755
+
+- name: Unzip project
+  unarchive:
+    src: "{{ remote_home_directory }}/{{ name_project }}.tar.gz"
+    dest: "{{ remote_home_directory }}/{{ name_project }}"
+    remote_src: true
+
+# - name: Copy files from 4ps-* to 4ps
+#   copy: 
+#     remote_src: True 
+#     src: "{{ remote_home_directory }}/{{ name_project }}/{{ name_project }}-{{ branch_name }}"
+#     dest: "{{ remote_home_directory }}/{{ name_project }}"
+
+# - name: Remove old files 4ps-*
+#   file: 
+#     path: "{{ remote_home_directory }}/{{ name_project }}/{{ name_project }}-{{ branch_name }}"
+#     state: absent
+
+- name: Create and start services with docker-compose
+  community.docker.docker_compose:
+    project_src: "{{ remote_home_directory }}/{{ name_project }}/{{ name_project }}-{{ branch_name }}/docker-services/"
+    env_file: "{{ remote_home_directory }}/{{ name_project }}/{{ name_project }}-{{ branch_name }}/docker-services/configs/.env.{{ name_env }}"
+    build: yes
+    debug: yes
+  register: output
+
+- name: Debug
+  ansible.builtin.debug:
+    var: output

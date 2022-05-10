@@ -1,0 +1,5 @@
+public_url: 4ps.local.flex-solution.com
+local_ip: 192.168.10.131
+frontend_port: 9080
+project_name: 4ps
+build_url: https://ci.flex-solution.com/job/Ben%20Lewis/job/4ps/job/4ps/

@@ -1,0 +1,9 @@
+- name: "Create Cert"
+  hosts: proxy_server
+  user: root
+
+  vars_files:
+    - ./global_vars/nginx_vars.yml
+
+  roles: 
+    - setup_nginx

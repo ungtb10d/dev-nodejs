@@ -1,0 +1,10 @@
+- name: "Create nginx config"
+  hosts: proxy_server
+  user: root
+
+  vars_files:
+    - ./global_vars/nginx_vars.yml
+    # - ./vaults/creds.yml
+
+  roles: 
+    - setup_nginx

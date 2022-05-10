@@ -1,0 +1,79 @@
+server {
+    if ($host = {{ public_url }}) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name {{ public_url }};
+}
+
+  server {
+    listen 443 ssl;
+    server_name  {{ public_url }};
+
+    client_max_body_size 0;
+
+    set  $allowOriginSite *;
+    proxy_pass_request_headers on;
+    proxy_pass_header Set-Cookie;
+
+    proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+    proxy_redirect off;
+    proxy_buffering off;
+    proxy_set_header Host            $host;
+    proxy_set_header X-Real-IP       $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass_header Set-Cookie;
+
+    proxy_read_timeout 3000;
+    proxy_connect_timeout 3000;
+    proxy_send_timeout 3000;
+
+    #root   /usr/share/nginx/html;
+    #index  index.html index.htm;
+    #include /etc/nginx/mime.types;
+
+    gzip on;
+    gzip_min_length 1000;
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_types text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+
+    location / {
+        proxy_pass http://{{ local_ip }}:{{ frontend_port }};
+    }
+
+    ssl_certificate /etc/letsencrypt/live/{{ public_url }}/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/{{ public_url }}/privkey.pem; # managed by Certbot
+
+    location /build {
+      auth_basic "Enter password!";
+      auth_basic_user_file /etc/nginx/conf.d/.htpasswd-{{ project_name }};
+      content_by_lua '
+        if ngx.var.arg_branch == nil then
+          command = "/usr/bin/{{ project_name }}-build.sh"
+        else
+          command = "/usr/bin/{{ project_name }}-build.sh "..ngx.var.arg_branch
+        end
+      local handle = io.popen(command);
+      local result = handle:read("*a");
+      handle:close();
+      return ngx.redirect("/")';
+    }
+
+    location /clear {
+      auth_basic "Enter password!";
+      auth_basic_user_file /etc/nginx/conf.d/.htpasswd-{{ project_name }};
+      content_by_lua '
+        if ngx.var.arg_branch == nil then
+          command = "/usr/bin/{{ project_name }}-clear.sh"
+        else
+          command = "/usr/bin/{{ project_name }}-clear.sh "..ngx.var.arg_branch
+        end
+      local handle = io.popen(command);
+      local result = handle:read("*a");
+      handle:close();
+      return ngx.redirect("/")';
+    }
+}

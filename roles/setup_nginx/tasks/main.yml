@@ -1,0 +1,42 @@
+---
+- name: Create config file
+  template:
+    src: templates/template_nginx.j2
+    dest: /etc/nginx/sites-available/{{ public_url }}
+    owner: root
+    group: root
+    mode: 644
+
+- name: Create script for build
+  template:
+    src: templates/template_script.j2
+    dest: /usr/bin/{{ project_name }}-build.sh
+    owner: root
+    group: root
+    mode: 751
+
+- name: Create a directory
+  file:
+    path: "/etc/letsencrypt/live/{{ public_url }}"
+    state: directory
+    mode: 0755
+
+# - name: htpasswd
+#   htpasswd:
+#     path: /etc/nginx/conf.d/
+#     name: "{{ project_name }}"
+#     password: "{{ build_password }}"
+#     group: root
+#     mode: 0640
+
+- name: Create symbolic link 
+  file:
+    src: /etc/nginx/sites-available/{{ public_url }}
+    dest: /etc/nginx/sites-enabled/{{ public_url }}
+    state: link
+
+- name: Start nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes

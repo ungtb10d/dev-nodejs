@@ -1,0 +1,4 @@
+user: ubuntu
+remote_home_directory: /home/ubuntu
+branch_name: needReview-10715
+name_env: docker

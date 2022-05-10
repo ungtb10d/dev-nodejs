@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -x
+
+echo $1
+
+#1=$(echo "$1" | sed -r 's/\\/\\\\/g;s/\//\\\//g;s/\^/\\^/g;s/\[/\\[/g;s/'\''/'\'"\\\\"\'\''/g;s/\]/\\]/g;s/\*/\\*/g;s/\$/\\$/g;s/\./\\./g;s/(/\(/g')
+
+curl -v -X POST  --user GitLabCI:113f5b6f94c05c39fd64b2e80fcc61e635 "{{ build_url }}/buildWithParameters?BRANCH=$1"
